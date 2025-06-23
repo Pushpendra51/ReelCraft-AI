@@ -1,0 +1,168 @@
+.upload-section {
+    padding: 4rem 0;
+    background: #f8f9fa;
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+}
+
+.upload-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.upload-title {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: var(--primary-color);
+}
+
+.upload-instructions {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #666;
+}
+
+.dropzone {
+    border: 2px dashed var(--primary-color) !important;
+    border-radius: 10px !important;
+    background: #f8f9fa !important;
+    min-height: 200px !important;
+    padding: 20px !important;
+    cursor: pointer !important;
+}
+
+.dropzone .dz-message {
+    margin: 2em 0 !important;
+    color: var(--primary-color) !important;
+    font-size: 1.2rem !important;
+}
+
+.submit-btn {
+    background: var(--primary-color);
+    color: white;
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 50px;
+    font-weight: bold;
+    margin-top: 2rem;
+    width: 100%;
+    transition: transform 0.3s ease;
+}
+
+.submit-btn:hover {
+    transform: translateY(-3px);
+    background: var(--secondary-color);
+}
+
+.submit-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.text-input-container {
+    margin: 2rem 0;
+}
+
+.text-input {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid var(--primary-color);
+    border-radius: 10px;
+    background-color: white;
+    font-size: 1rem;
+    color: #333;
+    resize: vertical;
+    min-height: 100px;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.text-input:hover {
+    border-color: var(--secondary-color);
+}
+
+.text-input:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(var(--primary-color-rgb), 0.1);
+}
+
+.text-input::placeholder {
+    color: #999;
+}
+
+.file-input-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 10px;
+}
+
+.file-input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #fff;
+}
+
+.add-file-btn {
+    background-color: #289c3a;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    margin: 10px 0;
+    transition: background-color 0.3s ease;
+}
+
+.add-file-btn:hover {
+    background-color: #45a049;
+}
+
+.remove-file-btn {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease;
+}
+
+.remove-file-btn:hover {
+    background-color: #da190b;
+}
+
+#fileInputs {
+    margin-bottom: 15px;
+}
+
+/* Style for the file input when a file is selected */
+.file-input:not(:placeholder-shown) {
+    border-color: #4CAF50;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .file-input-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .remove-file-btn {
+        align-self: flex-end;
+    }
+}
