@@ -15,6 +15,8 @@ ADMIN_EMAIL = 'this.pushpendra@gmail.com'
 
 # Configuration: Use Render's persistent disk if available
 DATA_DIR = os.environ.get('DATA_DIR', '.')
+os.makedirs(DATA_DIR, exist_ok=True) # Ensure the directory exists
+
 UPLOAD_FOLDER = os.path.join(DATA_DIR, 'user_upload')
 REELS_DIR = os.path.join(DATA_DIR, 'reels')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'mp4', 'mov', 'avi', 'webp'}
@@ -23,10 +25,12 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.secret_key = os.environ.get('SECRET_KEY', 'reelcraft-dev-secret-2025')
 
-# Persistent Database Path
+# Persistent Database Path - Using 4 slashes for absolute paths on Linux/Render
 db_path = os.path.abspath(os.path.join(DATA_DIR, 'app.db'))
-app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:////{db_path}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+print(f"DEBUG: Database URI is {app.config['SQLALCHEMY_DATABASE_URI']}", flush=True)
 
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
