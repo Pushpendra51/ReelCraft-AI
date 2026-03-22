@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+{% block title %}Processing Reel - ReelCraft AI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .status-page {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem 1rem;
+        background: var(--hero-bg);
+    }
+
+    .status-card {
+        background: var(--bg-card);
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
+        border: 1px solid var(--border-color);
+        border-radius: 24px;
+        padding: 3rem 2rem;
+        text-align: center;
+        max-width: 520px;
+        width: 100%;
+        color: var(--text-main);
+        box-shadow: var(--shadow);
+    }
+
+    .status-icon {
+        font-size: 5rem;
+        margin-bottom: 1.5rem;
+        display: block;
+    }
+
+    .status-icon.processing {
+        color: var(--primary-light);
+        animation: pulse-glow 1.5s ease-in-out infinite;
+    }
+
+    .status-icon.done {
+        color: var(--secondary);
+    }
+
+    @keyframes pulse-glow {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.15); opacity: 0.7; }
+    }
+
+    .status-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+    }
+
+    .status-desc {
+        color: var(--text-muted);
+        font-size: 1.05rem;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+
+    .reel-id-box {
+        background: var(--glass);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 0.75rem 1.25rem;
+        font-family: monospace;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        word-break: break-all;
+        margin-bottom: 2rem;
+    }
+
+    .progress-bar-wrap {
+        background: var(--bg-surface);
+        border-radius: 50px;
+        height: 6px;
+        margin-bottom: 2rem;
+        overflow: hidden;
+    }
+
+    .progress-bar-fill {
+        height: 100%;
+        border-radius: 50px;
+        background: linear-gradient(90deg, #e11d48, #14b8a6);
+        animation: progress-indeterminate 2s ease-in-out infinite;
+    }
+
+    @keyframes progress-indeterminate {
+        0% { width: 0%; margin-left: 0; }
+        50% { width: 60%; margin-left: 20%; }
+        100% { width: 0%; margin-left: 100%; }
+    }
+
+    .status-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .btn-gallery {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        padding: 0.85rem 2rem;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        box-shadow: 0 8px 25px rgba(168, 85, 247, 0.3);
+    }
+
+    .btn-gallery:hover {
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 15px 40px rgba(168, 85, 247, 0.5);
+    }
+
+    .btn-new {
+        background: var(--bg-surface);
+        color: var(--text-main);
+        padding: 0.85rem 2rem;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        border: 1px solid var(--border-color);
+    }
+
+    .btn-new:hover {
+        background: var(--bg-card);
+        color: var(--text-main);
+    }
+
+    .countdown {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        margin-top: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="status-page">
+    <div class="status-card">
+        {% if is_done %}
+            <i class="fas fa-check-circle status-icon done"></i>
+            <h1 class="status-title">Reel Ready! 🎉</h1>
+            <p class="status-desc">Your AI reel has been created successfully. Head to the gallery to watch it!</p>
+            <div class="reel-id-box">ID: {{ reel_id }}</div>
+            <div class="status-actions">
+                <a href="/gallery" class="btn-gallery">
+                    <i class="fas fa-play me-2"></i> Watch in Gallery
+                </a>
+                <a href="/create" class="btn-new">
+                    <i class="fas fa-plus me-2"></i> Create Another
+                </a>
+            </div>
+        {% else %}
+            <i class="fas fa-cogs status-icon processing"></i>
+            <h1 class="status-title">Processing Your Reel</h1>
+            <p class="status-desc">
+                Our AI is generating your voice audio and stitching your images into a reel.
+                This usually takes <strong>30–60 seconds</strong>.
+            </p>
+            <div class="reel-id-box">ID: {{ reel_id }}</div>
+            <div class="progress-bar-wrap">
+                <div class="progress-bar-fill"></div>
+            </div>
+            <div class="status-actions">
+                <a href="/gallery" class="btn-gallery">
+                    <i class="fas fa-images me-2"></i> View Gallery
+                </a>
+                <a href="/create" class="btn-new">
+                    <i class="fas fa-plus me-2"></i> Create Another
+                </a>
+            </div>
+            <p class="countdown" id="refreshNote">Page refreshes in <span id="timer">10</span>s...</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if not is_done %}
+<script>
+    let seconds = 10;
+    const timerEl = document.getElementById('timer');
+    const interval = setInterval(() => {
+        seconds--;
+        timerEl.textContent = seconds;
+        if (seconds <= 0) {
+            clearInterval(interval);
+            window.location.reload();
+        }
+    }, 1000);
+</script>
+{% endif %}
+{% endblock %}

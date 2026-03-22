@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+
+{% block title %}About Us - ReelCraft AI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .about-hero {
+        padding: 8rem 0 6rem;
+        background: var(--hero-bg);
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .about-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        height: 100%;
+        background: var(--accent-glow);
+        z-index: 0;
+    }
+
+    .about-title {
+        font-size: 3.5rem;
+        font-weight: 800;
+        letter-spacing: -1.5px;
+        margin-bottom: 1.5rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .about-subtitle {
+        font-size: 1.2rem;
+        color: var(--text-muted);
+        max-width: 700px;
+        margin: 0 auto 3rem;
+        line-height: 1.8;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Mission & Vision Cards */
+    .mission-section {
+        padding: 6rem 0;
+        background: var(--bg-main);
+    }
+
+    .info-card {
+        background: var(--bg-card);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--border-color);
+        border-radius: 24px;
+        padding: 3rem 2.5rem;
+        height: 100%;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        cursor: default;
+    }
+
+    .info-card:hover {
+        transform: translateY(-15px) scale(1.02);
+        border-color: var(--primary-light);
+        box-shadow: 0 20px 50px rgba(168, 85, 247, 0.15);
+    }
+
+    .info-icon {
+        width: 65px;
+        height: 65px;
+        background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(34, 211, 238, 0.1));
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        color: var(--primary-light);
+        margin-bottom: 2rem;
+    }
+
+    .info-card h3 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 1.2rem;
+        color: var(--text-main);
+    }
+
+    .info-card p {
+        color: var(--text-muted);
+        line-height: 1.7;
+        font-size: 1.05rem;
+    }
+
+    /* Technology Section */
+    .tech-section {
+        padding: 6rem 0;
+        background: var(--bg-main);
+        border-top: 1px solid var(--border-color);
+    }
+
+    .tech-item {
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .tech-number {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--primary-light);
+        opacity: 0.3;
+        line-height: 1;
+    }
+
+    .tech-info h4 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .tech-info p {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="about-hero reveal">
+    <div class="container">
+        <div class="hero-badge mx-auto">Discover Our Story</div>
+        <h1 class="about-title">Revolutionizing <span>Content</span> with AI</h1>
+        <p class="about-subtitle">
+            ReelCraft AI was born from a simple idea: that high-quality video production should be accessible to everyone. 
+            We've built the most intuitive AI workspace for creators to turn text into viral-ready reels in seconds.
+        </p>
+    </div>
+</section>
+
+<section class="mission-section reveal">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="info-card">
+                    <div class="info-icon">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <h3>Our Mission</h3>
+                    <p>
+                        To democratize video storytelling by providing powerful, user-friendly AI tools that bridge the gap 
+                        between raw ideas and professional cinematic output. We empower creators to focus on strategy 
+                        and creativity while our AI handles the technical heavy lifting.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="info-card">
+                    <div class="info-icon">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <h3>Our Vision</h3>
+                    <p>
+                        To become the global standard for AI-assisted media creation. We envision a future where 
+                        language and technical skill are no longer barriers to creating world-class visual content, 
+                        enabling a truly diverse and global digital creator economy.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="tech-section reveal">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-5 mb-5 mb-lg-0">
+                <div class="section-label" style="text-align: left;">How it Works</div>
+                <h2 class="section-title" style="text-align: left;">The Technology Behind the Magic</h2>
+                <p class="text-muted mb-5">Our proprietary pipeline combines multiple AI models to deliver a seamless creative experience.</p>
+                
+                <div class="tech-item">
+                    <div class="tech-number">01</div>
+                    <div class="tech-info">
+                        <h4>Neural Voice Synthesis</h4>
+                        <p>Leveraging ElevenLabs API for ultra-realistic, emotionally resonant AI voices that bring your scripts to life.</p>
+                    </div>
+                </div>
+                
+                <div class="tech-item">
+                    <div class="tech-number">02</div>
+                    <div class="tech-info">
+                        <h4>Smart Image Stitching</h4>
+                        <p>Sophisticated frame processing algorithms ensure your images are timed perfectly to the AI-generated narration.</p>
+                    </div>
+                </div>
+
+                <div class="tech-item">
+                    <div class="tech-number">03</div>
+                    <div class="tech-info">
+                        <h4>Cloud Rendering</h4>
+                        <p>High-performance FFmpeg processing handles the heavy video encoding in the cloud, delivering your reel in seconds.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 offset-lg-1">
+                <div class="position-relative">
+                    <img src="https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1000&q=80" alt="Tech Visual" class="img-fluid rounded-4 shadow-lg" style="border: 1px solid var(--border-color);">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 text-center">
+    <div class="container py-5">
+        <h2 class="fw-bold mb-4">Ready to start creating?</h2>
+        <a href="/create" class="cta-button">Launch AI Workspace</a>
+    </div>
+</section>
+{% endblock %}

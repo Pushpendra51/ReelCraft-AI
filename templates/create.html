@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Create Reel - ReelCraft AI{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/create.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="upload-section reveal">
+    <div class="container">
+        <div class="upload-container">
+            <div class="upload-header">
+                <div class="upload-icon-wrap">
+                    <i class="fas fa-magic"></i>
+                </div>
+                <h1 class="upload-title">Create Your Reel</h1>
+                <p class="upload-instructions">Upload your images or videos and add a voice description. Our AI will turn them into a stunning reel!</p>
+            </div>
+
+            <form action="/create" enctype="multipart/form-data" method="post" id="reelForm">
+                <input name="uuid" type="hidden" value="{{ myid }}">
+
+                <div class="form-section">
+                    <label class="form-label-custom">
+                        <i class="fas fa-images me-2"></i>Media Files
+                    </label>
+                    <div id="fileInputs">
+                        <div class="file-input-group">
+                            <input name="file1" type="file" class="file-input" accept="image/*,video/*" />
+                            <button type="button" class="remove-file-btn" onclick="removeFileInput(this)" disabled>
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="button" class="add-file-btn" onclick="addFileInput()">
+                        <i class="fas fa-plus me-2"></i>Add Another File
+                    </button>
+                </div>
+
+                <div class="form-section">
+                    <label class="form-label-custom">
+                        <i class="fas fa-music me-2"></i>Audio Mode
+                    </label>
+                    <div class="audio-mode-toggle">
+                        <input type="radio" id="mode-tts" name="audio_mode" value="tts" checked onclick="toggleAudioMode('tts')">
+                        <label for="mode-tts"><i class="fas fa-microphone me-2"></i>AI Voice</label>
+                        
+                        <input type="radio" id="mode-music" name="audio_mode" value="music" onclick="toggleAudioMode('music')">
+                        <label for="mode-music"><i class="fas fa-music me-2"></i>MP3 Music</label>
+                    </div>
+                </div>
+
+                <div class="form-section" id="section-tts">
+                    <label class="form-label-custom" for="textInput">
+                        <i class="fas fa-quote-left me-2"></i>AI Voice Script
+                    </label>
+                    <textarea class="text-input" id="textInput" name="text"
+                        placeholder="Enter your script here. Our AI will read it over your reel..."
+                        rows="4"></textarea>
+                    <p class="form-hint">Uses ElevenLabs (Premium) or gTTS (Free Fallback)</p>
+                </div>
+
+                <div class="form-section" id="section-music" style="display:none;">
+                    <label class="form-label-custom" for="musicFile">
+                        <i class="fas fa-file-audio me-2"></i>Upload MP3 Song
+                    </label>
+                    <div class="file-input-group">
+                        <input type="file" id="musicFile" name="music_file" class="file-input" accept="audio/mpeg,audio/mp3">
+                    </div>
+                    <p class="form-hint">Select a real MP3 song from your device to sync with your photos.</p>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <span class="btn-text"><i class="fas fa-wand-magic-sparkles me-2"></i>Create Reel</span>
+                    <span class="btn-loading" style="display:none;">
+                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                        Processing...
+                    </span>
+                </button>
+            </form>
+        </div>
+    </div>
+</section>
+
+<!-- Loading overlay -->
+<div class="loading-overlay" id="loadingOverlay" style="display:none;">
+    <div class="loading-card">
+        <div class="loading-spinner">
+            <i class="fas fa-film fa-spin"></i>
+        </div>
+        <h3>Uploading your files...</h3>
+        <p>Please wait while we upload your media</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let fileCounter = 2;
+
+    function addFileInput() {
+        const fileInputs = document.getElementById('fileInputs');
+        const newFileInput = document.createElement('div');
+        newFileInput.className = 'file-input-group';
+        newFileInput.innerHTML = `
+            <input name="file${fileCounter}" type="file" class="file-input" accept="image/*,video/*" />
+            <button type="button" class="remove-file-btn" onclick="removeFileInput(this)">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        fileInputs.appendChild(newFileInput);
+        fileCounter++;
+    }
+
+    function removeFileInput(button) {
+        button.parentElement.remove();
+    }
+
+    function toggleAudioMode(mode) {
+        if (mode === 'tts') {
+            document.getElementById('section-tts').style.display = 'block';
+            document.getElementById('section-music').style.display = 'none';
+        } else {
+            document.getElementById('section-tts').style.display = 'none';
+            document.getElementById('section-music').style.display = 'block';
+        }
+    }
+
+    // Show loading overlay on submit
+    document.getElementById('reelForm').addEventListener('submit', function(e) {
+        const files = document.querySelectorAll('.file-input');
+        let hasFile = false;
+        files.forEach(f => { if (f.files.length > 0) hasFile = true; });
+
+        if (!hasFile) {
+            e.preventDefault();
+            alert('Please select at least one image or video file.');
+            return;
+        }
+
+        document.getElementById('loadingOverlay').style.display = 'flex';
+        const btn = document.getElementById('submitBtn');
+        btn.querySelector('.btn-text').style.display = 'none';
+        btn.querySelector('.btn-loading').style.display = 'inline-flex';
+        btn.disabled = true;
+    });
+</script>
+{% endblock %}

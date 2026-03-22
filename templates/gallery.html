@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Gallery - ReelCraft AI{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/gallery.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="gallery-page reveal">
+    <div class="container">
+        <div class="gallery-header">
+            <h1 class="gallery-title">Reels Gallery</h1>
+            <p class="gallery-subtitle">Your personalized, private AI-generated reels collection.</p>
+            <a href="/create" class="create-btn">
+                <i class="fas fa-plus me-2"></i>Create New Reel
+            </a>
+        </div>
+
+        {% if reels %}
+        <div class="gallery-grid">
+            {% for reel in reels %}
+            <div class="reel-card">
+                <div class="reel-video-wrap">
+                    <video src="/static/reels/{{ reel }}?v={{ range(10000, 99999) | random }}" controls preload="metadata">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <div class="reel-info">
+                    <i class="fas fa-film me-2 text-primary"></i>
+                    <span>{{ reel }}</span>
+                    <form action="/gallery/delete/{{ reel[:-4] }}" method="post" class="reel-delete-form" onsubmit="return confirm('Delete this reel from the gallery?');">
+                        <button type="submit" class="reel-delete-btn" title="Delete reel">
+                            <i class="fas fa-trash-alt me-1"></i> Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-film"></i>
+            </div>
+            <h2>No Reels Yet</h2>
+            <p>Be the first one to create an amazing AI-powered reel!</p>
+            <a href="/create" class="create-btn">
+                <i class="fas fa-magic me-2"></i>Create Your First Reel
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

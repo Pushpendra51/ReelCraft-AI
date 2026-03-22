@@ -1,0 +1,1 @@
+ffmpeg -f concat -safe 0 -i user_upload/651fd385-505d-11f0-9d81-8b83efa4354e/input.txt -i user_upload/651fd385-505d-11f0-9d81-8b83efa4354e/gang.mp3 -vf "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2:black" -c:v libx264 -c:a aac -shortest -r 30 -pix_fmt yuv420p static\reels.mp4

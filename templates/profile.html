@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - ReelCraft AI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-container {
+        padding: 4rem 0;
+    }
+
+    .welcome-section {
+        margin-bottom: 3rem;
+    }
+
+    .welcome-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+    }
+
+    .dashboard-card {
+        background: var(--bg-card);
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
+        border: 1px solid var(--border-color);
+        border-radius: 24px;
+        padding: 2.5rem;
+        height: 100%;
+        transition: transform 0.3s;
+    }
+
+    .dashboard-card:hover {
+        border-color: var(--primary-light);
+    }
+
+    .create-card {
+        background: linear-gradient(135deg, rgba(123, 44, 191, 0.1), rgba(0, 245, 212, 0.05));
+    }
+
+    .card-icon {
+        width: 50px;
+        height: 50px;
+        background: var(--glass);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        color: var(--primary-light);
+        margin-bottom: 1.5rem;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .stat-box {
+        text-align: left;
+        padding: 1rem;
+        background: var(--bg-surface);
+        border-radius: 16px;
+        border: 1px solid var(--border-color);
+    }
+
+    .stat-box .num {
+        display: block;
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--text-main);
+    }
+
+    .stat-box .label {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .recent-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .empty-projects {
+        padding: 4rem 2rem;
+        text-align: center;
+        opacity: 0.6;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="container">
+        <!-- Welcome Header -->
+        <div class="welcome-section">
+            <div class="hero-badge" style="margin: 0;">User Dashboard</div>
+            <h1 class="welcome-title">Welcome Back, <span>{{ user.name }}</span></h1>
+            <p class="text-muted">Manage your reels and create something amazing today.</p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Left Column: Actions -->
+            <div class="col-lg-5">
+                <div class="dashboard-card create-card">
+                    <div class="card-icon">
+                        <i class="fas fa-plus-circle"></i>
+                    </div>
+                    <h4>Create New Project</h4>
+                    <p class="text-muted mb-4">Start by uploading your images and let AI craft your cinematic story.</p>
+                    <a href="/create" class="cta-button w-100 text-center">Start Creating Now</a>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <span class="num">0</span>
+                            <span class="label">Total Reels</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="num">Free</span>
+                            <span class="label">Plan</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: List -->
+            <div class="col-lg-7">
+                <div class="dashboard-card">
+                    <div class="recent-header">
+                        <h4 class="m-0">Your Recent Reels</h4>
+                        <a href="/gallery" class="small text-decoration-none" style="color: var(--primary-light);">View Gallery →</a>
+                    </div>
+                    
+                    <div class="empty-projects">
+                        <p class="mb-0">You haven't created any reels yet. Once you do, they'll appear here for easy access!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Account Settings Quick Access -->
+        <div class="mt-5">
+            <div class="dashboard-card p-4">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="card-icon m-0" style="width: 40px; height: 40px; font-size: 1rem;">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <div>
+                            <h6 class="m-0">Account Email</h6>
+                            <small class="text-muted">{{ user.email }}</small>
+                        </div>
+                    </div>
+                    <a href="/logout" class="btn btn-sm btn-outline-danger px-4 rounded-pill">Logout from Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

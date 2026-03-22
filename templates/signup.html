@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Sign Up - ReelCraft AI{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-center py-5" style="min-height: calc(100vh - 150px);">
+    <div class="card shadow-lg border-0 rounded-4" style="max-width: 500px; width: 100%; background: var(--bg-card); backdrop-filter: blur(10px); border: 1px solid var(--border-color) !important;">
+        <div class="card-body p-5">
+            <div class="text-center mb-4">
+                <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 rounded-circle mb-3" style="width: 60px; height: 60px; color: var(--primary);">
+                    <i class="fas fa-user-plus fa-xl"></i>
+                </div>
+                <h2 class="fw-bold mb-1" style="color: var(--text-main);">Create an Account</h2>
+                <p style="color: var(--text-muted);">Join ReelCraft AI and start generating.</p>
+            </div>
+            
+            <form action="/signup" method="POST">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" style="color: var(--text-main);">Full Name</label>
+                    <input type="text" name="fullname" class="form-control form-control-lg bg-transparent" placeholder="John Doe" required style="border-color: var(--border-color); color: var(--text-main);">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" style="color: var(--text-main);">Email address</label>
+                    <input type="email" name="email" class="form-control form-control-lg bg-transparent" placeholder="name@example.com" required style="border-color: var(--border-color); color: var(--text-main);">
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold" style="color: var(--text-main);">Password</label>
+                        <input type="password" name="password" class="form-control form-control-lg bg-transparent" placeholder="••••••••" required style="border-color: var(--border-color); color: var(--text-main);">
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <label class="form-label fw-semibold" style="color: var(--text-main);">Confirm</label>
+                        <input type="password" name="confirm_password" class="form-control form-control-lg bg-transparent" placeholder="••••••••" required style="border-color: var(--border-color); color: var(--text-main);">
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn w-100 py-3 fw-bold text-white mb-3" style="background: linear-gradient(135deg, var(--primary), var(--primary-light)); border-radius: 12px; border: none; box-shadow: 0 4px 15px rgba(142, 68, 173, 0.3);">Create Account</button>
+            </form>
+            
+            <div class="text-center mt-4">
+                <p class="mb-0" style="color: var(--text-muted);">Already have an account? <a href="/login" class="text-decoration-none fw-bold" style="color: var(--primary);">Log In</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

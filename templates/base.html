@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ReelCraft AI{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_css %}{% endblock %}
+    
+    <!-- Inline script to prevent FOUC (Flash of Unstyled Content) by setting theme instantly -->
+    <script>
+        const savedTheme = localStorage.getItem('reelcraft-theme');
+        if (savedTheme) {
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        } else {
+            // Default to dark
+            document.documentElement.setAttribute('data-theme', 'dark');
+            localStorage.setItem('reelcraft-theme', 'dark');
+        }
+    </script>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="ReelCraft AI" height="36" style="border-radius: 8px;">
+                <span>ReelCraft AI</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link px-3" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-3" href="/about">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-3" href="/create">Create</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-3" href="/gallery">Gallery</a>
+                    </li>
+                    {% if current_user.is_authenticated %}
+                    {% if current_user.email == 'this.pushpendra@gmail.com' %}
+                    <li class="nav-item">
+                        <a class="nav-link px-3" href="/admin" style="color: var(--accent) !important; font-weight: 700;">
+                            <i class="fas fa-chart-pie me-1"></i>Admin
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item d-flex align-items-center gap-3 ms-lg-3">
+                        <div class="user-pill d-flex align-items-center gap-2 px-3 py-1">
+                            <i class="fas fa-user user-icon"></i>
+                            <span class="user-name">{{ current_user.name | default(current_user.email.split('@')[0] | title) }}</span>
+                        </div>
+                        <a href="/logout" class="logout-trigger px-3 py-1 text-decoration-none">
+                            Logout
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link px-3" href="/login">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-3 text-primary" href="/register">Register</a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item ms-lg-2 d-flex align-items-center">
+                        <button id="theme-toggle" class="btn btn-sm" aria-label="Toggle theme">
+                            <i class="fas fa-moon" id="theme-icon"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-container">
+            {% for category, message in messages %}
+            <div class="flash-message flash-{{ category }}">
+                <i class="fas {% if category == 'success' %}fa-check-circle{% else %}fa-exclamation-circle{% endif %} me-2"></i>
+                {{ message }}
+                <button class="flash-close" onclick="this.parentElement.remove()">×</button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
+
+    <div class="main-content">
+        {% block content %}{% endblock %}
+    </div>
+
+    <footer class="footer-cinematic">
+        <div class="container">
+            <div class="row gy-5 align-items-center">
+                <!-- Left Section: Logo & Tagline -->
+                <div class="col-lg-4 text-center text-lg-start">
+                    <div class="footer-logo mb-3 d-flex align-items-center gap-2 justify-content-center justify-content-lg-start">
+                        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="ReelCraft AI" height="42" style="border-radius: 10px;">
+                        <span class="footer-logo-text">ReelCraft AI</span>
+                    </div>
+                    <p class="footer-tagline">
+                        Transforming raw ideas into cinematic reels in seconds. Powered by advanced AI storytelling.
+                    </p>
+                </div>
+
+                <!-- Center Section: Navigation -->
+                <div class="col-lg-4 text-center">
+                    <div class="footer-nav-links d-flex justify-content-center gap-4 flex-wrap">
+                        <a href="/about">About</a>
+                        <a href="/#features">Features</a>
+                        <a href="/gallery">Gallery</a>
+                        <a href="mailto:support@reelcraft.ai">Contact</a>
+                    </div>
+                </div>
+
+                <!-- Right Section: Social Icons -->
+                <div class="col-lg-4">
+                    <div class="d-flex justify-content-center justify-content-lg-end gap-3">
+                        <a href="https://www.instagram.com/ipushpendr4/" class="social-icon-cinematic" target="_blank">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="https://x.com/pxshpendra" class="social-icon-cinematic" target="_blank">
+                            <i class="fa-brands fa-x-twitter"></i>
+                        </a>
+                        <a href="https://github.com/Pushpendra51" class="social-icon-cinematic" target="_blank">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="https://www.linkedin.com/in/pushpendra61/" class="social-icon-cinematic" target="_blank">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Section: Copyright -->
+            <div class="footer-bottom-cinematic text-center">
+                <p class="copyright-text m-0">&copy; 2026 ReelCraft AI. All rights reserved. &bull; Developed by Pushpendra</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+    
+    <!-- Theme Toggle Logic -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleBtn = document.getElementById('theme-toggle');
+            const toggleIcon = document.getElementById('theme-icon');
+            const docEl = document.documentElement;
+            
+            // Set initial icon based on current theme from inline script
+            if (docEl.getAttribute('data-theme') === 'light') {
+                toggleIcon.classList.replace('fa-moon', 'fa-sun');
+            }
+            
+            toggleBtn.addEventListener('click', () => {
+                const currentTheme = docEl.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                
+                docEl.setAttribute('data-theme', newTheme);
+                localStorage.setItem('reelcraft-theme', newTheme);
+                
+                // Swap purely the icon representations
+                if (newTheme === 'light') {
+                    toggleIcon.classList.replace('fa-moon', 'fa-sun');
+                } else {
+                    toggleIcon.classList.replace('fa-sun', 'fa-moon');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

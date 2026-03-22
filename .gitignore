@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+dist/
+build/
+
+# Environment
+.env
+api.env
+*.env
+
+# Database
+instance/
+*.db
+
+# Uploads & generated files
+user_upload/
+static/reels/
+done.txt
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp scripts
+rename_theme.py
+revert_theme.py
+migrate_admin.py
+delete_bad_reel.py
+link_old_reels.py

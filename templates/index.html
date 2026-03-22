@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}ReelCraft AI - Create Amazing Instagram Reels{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container text-center">
+        <div class="hero-badge">
+            <i class="fas fa-sparkles"></i>
+            Powered by ElevenLabs AI
+        </div>
+        <h1 class="hero-title">
+            Create <span>Stunning Reels</span><br>with AI Voice & Vision
+        </h1>
+        <p class="hero-subtitle">
+            Upload your images, write a script, and let our AI generate a professional voice-over and stitch everything into a reel — in seconds.
+        </p>
+        <div class="hero-actions">
+            <a href="/create" class="cta-button">
+                <i class="fas fa-magic"></i> Start Creating Free
+            </a>
+            <a href="/gallery" class="cta-secondary">
+                <i class="fas fa-play-circle"></i> View Gallery
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section reveal">
+    <div class="container text-center">
+        <p class="section-label">Everything You Need</p>
+        <h2 class="section-title">Powerful Features</h2>
+        <p class="section-subtitle">Stitch images, add AI voices, and create viral content in seconds.</p>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon-wrap">
+                        <i class="fas fa-microphone feature-icon"></i>
+                    </div>
+                    <h3>AI Voice Generation</h3>
+                    <p>Type your script and our ElevenLabs-powered AI generates a natural, expressive voice-over that matches your content.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon-wrap">
+                        <i class="fas fa-film feature-icon"></i>
+                    </div>
+                    <h3>Auto Reel Stitching</h3>
+                    <p>Our FFmpeg pipeline automatically combines your images with the AI audio into a 1080×1920 vertical reel, ready for Instagram.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon-wrap">
+                        <i class="fas fa-bolt feature-icon"></i>
+                    </div>
+                    <h3>Fast Processing</h3>
+                    <p>Background workers process your reel asynchronously so you can submit multiple reels and track their status in real-time.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Showcase Section -->
+<section class="showcase-section">
+    <div class="container">
+        <h2 class="showcase-title">Featured Creations</h2>
+        <p class="showcase-subtitle">Sample content from our creators</p>
+        <div class="image-grid">
+            <!-- Premium HD images curated for the showcase -->
+            <img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80" class="showcase-image" alt="Premium Cinematic Car">
+            <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80" class="showcase-image" alt="Landscape 2">
+            <img src="https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=800&q=80" class="showcase-image" alt="Nature 3">
+            <img src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=800&q=80" class="showcase-image" alt="Forest 4">
+            <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80" class="showcase-image" alt="Mountains 5">
+            <img src="https://images.unsplash.com/photo-1534067783941-51c9c23ecefd?auto=format&fit=crop&w=800&q=80" class="showcase-image" alt="Urban 6">
+            <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=800&q=80" class="showcase-image" alt="Tech 7">
+            <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&q=80" class="showcase-image" alt="Creativity 8">
+            <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80" class="showcase-image" alt="Event 9">
+            <img src="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=800&q=80" class="showcase-image" alt="Abstract 10">
+        </div>
+    </div>
+</section>
+{% endblock %}

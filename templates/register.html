@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block title %}Sign Up - ReelCraft AI{% endblock %}
+
+{% block extra_css %}
+<style>
+.auth-section {
+    padding: 6rem 1rem;
+    min-height: calc(100vh - 72px);
+    display: flex;
+    align-items: center;
+}
+.auth-container {
+    max-width: 450px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 2.5rem;
+    background: var(--bg-card);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+}
+.auth-title {
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--text-main);
+    margin-bottom: 0.5rem;
+    font-family: 'Outfit', sans-serif;
+    text-align: center;
+}
+.auth-subtitle {
+    text-align: center;
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+}
+.auth-input {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    background: var(--bg-surface);
+    color: var(--text-main);
+    font-size: 0.95rem;
+    margin-bottom: 1.25rem;
+    transition: all 0.3s ease;
+}
+.auth-input:focus {
+    outline: none;
+    border-color: rgba(142, 68, 173, 0.7);
+    background: var(--bg-card);
+    box-shadow: 0 0 0 3px rgba(142, 68, 173, 0.12);
+}
+.auth-btn {
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    color: white;
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 1rem;
+    width: 100%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 30px rgba(168, 85, 247, 0.4);
+}
+.auth-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 45px rgba(168, 85, 247, 0.5);
+    filter: brightness(1.1);
+}
+.auth-link {
+    display: block;
+    text-align: center;
+    margin-top: 1.5rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+.auth-link span {
+    color: var(--primary-light);
+    font-weight: 600;
+}
+.auth-link:hover span {
+    text-decoration: underline;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+    <div class="auth-container reveal">
+        <h1 class="auth-title">Create Account</h1>
+        <p class="auth-subtitle">Join ReelCraft AI to save and manage your cinematic reels securely.</p>
+        
+        <form method="POST" action="{{ url_for('register') }}">
+            <input type="text" name="name" class="auth-input" placeholder="Full Name" required>
+            <input type="email" name="email" class="auth-input" placeholder="Email Address" required>
+            <input type="password" name="password" class="auth-input" placeholder="Password" minlength="6" required>
+            <button type="submit" class="auth-btn">Sign Up <i class="fas fa-plus ms-2"></i></button>
+        </form>
+        
+        <a href="{{ url_for('login') }}" class="auth-link">Already have an account? <span>Log In</span></a>
+    </div>
+</section>
+{% endblock %}

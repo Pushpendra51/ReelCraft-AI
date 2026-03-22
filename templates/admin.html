@@ -1,0 +1,377 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard - ReelCraft AI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-page {
+        padding: 3rem 0 6rem;
+        min-height: calc(100vh - 72px);
+    }
+
+    .admin-header {
+        margin-bottom: 3rem;
+    }
+
+    .admin-title {
+        font-size: 2.5rem;
+        font-weight: 900;
+        color: var(--text-main);
+        letter-spacing: -1px;
+        font-family: 'Outfit', sans-serif;
+    }
+
+    .admin-subtitle {
+        color: var(--text-muted);
+        font-size: 1rem;
+    }
+
+    .admin-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: rgba(225, 29, 72, 0.12);
+        border: 1px solid rgba(225, 29, 72, 0.3);
+        color: #fb7185;
+        padding: 0.3rem 0.8rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    :root[data-theme="light"] .admin-badge {
+        background: rgba(190, 18, 60, 0.08);
+        color: #be123c;
+    }
+
+    /* Stat Cards */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.25rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .stat-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 18px;
+        padding: 1.5rem;
+        backdrop-filter: blur(10px);
+        transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        border-color: var(--primary);
+    }
+
+    .stat-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+    }
+
+    .stat-icon.visitors { background: rgba(225, 29, 72, 0.15); color: #fb7185; }
+    .stat-icon.users { background: rgba(20, 184, 166, 0.15); color: #14b8a6; }
+    .stat-icon.reels { background: rgba(249, 115, 22, 0.15); color: #f97316; }
+    .stat-icon.pages { background: rgba(139, 92, 246, 0.15); color: #a78bfa; }
+
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--text-main);
+        line-height: 1;
+        margin-bottom: 0.3rem;
+    }
+
+    .stat-label {
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .stat-sub {
+        color: var(--text-muted);
+        font-size: 0.75rem;
+        margin-top: 0.5rem;
+        opacity: 0.7;
+    }
+
+    /* Sections */
+    .admin-section {
+        margin-bottom: 2.5rem;
+    }
+
+    .section-heading {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--text-main);
+        margin-bottom: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .section-heading i {
+        color: var(--primary);
+    }
+
+    /* Tables */
+    .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        overflow: hidden;
+        backdrop-filter: blur(10px);
+    }
+
+    .admin-table th {
+        padding: 0.9rem 1.25rem;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--text-muted);
+        border-bottom: 1px solid var(--border-color);
+        text-align: left;
+    }
+
+    .admin-table td {
+        padding: 0.85rem 1.25rem;
+        font-size: 0.9rem;
+        color: var(--text-main);
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .admin-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .admin-table tr:hover td {
+        background: var(--bg-surface);
+    }
+
+    /* Chart */
+    .chart-container {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 18px;
+        padding: 1.5rem;
+        backdrop-filter: blur(10px);
+    }
+
+    .chart-bars {
+        display: flex;
+        align-items: flex-end;
+        gap: 0.75rem;
+        height: 180px;
+        padding-top: 1rem;
+    }
+
+    .chart-bar-wrap {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        height: 100%;
+        justify-content: flex-end;
+    }
+
+    .chart-bar {
+        width: 100%;
+        max-width: 50px;
+        background: linear-gradient(180deg, var(--primary), var(--secondary));
+        border-radius: 8px 8px 4px 4px;
+        min-height: 4px;
+        transition: height 0.5s ease;
+    }
+
+    .chart-bar-label {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        font-weight: 600;
+    }
+
+    .chart-bar-count {
+        font-size: 0.75rem;
+        color: var(--text-main);
+        font-weight: 700;
+    }
+
+    .page-path {
+        font-family: monospace;
+        font-size: 0.85rem;
+        background: var(--bg-surface);
+        padding: 0.2rem 0.6rem;
+        border-radius: 6px;
+    }
+
+    .visit-count {
+        font-weight: 700;
+        color: var(--primary);
+    }
+
+    @media (max-width: 768px) {
+        .admin-title { font-size: 1.8rem; }
+        .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 480px) {
+        .stats-grid { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-page reveal">
+    <div class="container">
+        <div class="admin-header">
+            <div class="admin-badge">
+                <i class="fas fa-shield-alt"></i> Admin Only
+            </div>
+            <h1 class="admin-title">Analytics Dashboard</h1>
+            <p class="admin-subtitle">Real-time overview of your ReelCraft AI platform</p>
+        </div>
+
+        <!-- Stat Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon visitors"><i class="fas fa-eye"></i></div>
+                <div class="stat-number">{{ visits_today }}</div>
+                <div class="stat-label">Visits Today</div>
+                <div class="stat-sub">{{ unique_visitors_today }} unique visitors</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon visitors"><i class="fas fa-chart-line"></i></div>
+                <div class="stat-number">{{ total_visits }}</div>
+                <div class="stat-label">Total Page Views</div>
+                <div class="stat-sub">{{ unique_visitors_total }} unique IPs all time</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon users"><i class="fas fa-users"></i></div>
+                <div class="stat-number">{{ total_users }}</div>
+                <div class="stat-label">Registered Users</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon reels"><i class="fas fa-film"></i></div>
+                <div class="stat-number">{{ total_reels }}</div>
+                <div class="stat-label">Total Reels</div>
+                <div class="stat-sub">{{ completed_reels }} completed · {{ pending_reels }} pending</div>
+            </div>
+        </div>
+
+        <!-- Visit Stats Row -->
+        <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+            <div class="stat-card">
+                <div class="stat-icon pages"><i class="fas fa-calendar-day"></i></div>
+                <div class="stat-number">{{ visits_today }}</div>
+                <div class="stat-label">Today</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon pages"><i class="fas fa-calendar-week"></i></div>
+                <div class="stat-number">{{ visits_week }}</div>
+                <div class="stat-label">This Week</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon pages"><i class="fas fa-calendar-alt"></i></div>
+                <div class="stat-number">{{ visits_month }}</div>
+                <div class="stat-label">This Month</div>
+            </div>
+        </div>
+
+        <!-- Daily Traffic Chart -->
+        <div class="admin-section">
+            <h3 class="section-heading"><i class="fas fa-chart-bar"></i> Daily Traffic (Last 7 Days)</h3>
+            <div class="chart-container">
+                <div class="chart-bars">
+                    {% set max_count = daily_visits | map(attribute='count') | max or 1 %}
+                    {% for day in daily_visits %}
+                    <div class="chart-bar-wrap">
+                        <div class="chart-bar-count">{{ day.count }}</div>
+                        <div class="chart-bar" style="height: {{ (day.count / max_count * 150) | int }}px;"></div>
+                        <div class="chart-bar-label">{{ day.date }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Top Pages -->
+            <div class="col-lg-6">
+                <div class="admin-section">
+                    <h3 class="section-heading"><i class="fas fa-fire"></i> Top Pages</h3>
+                    <table class="admin-table">
+                        <thead>
+                            <tr><th>Page</th><th>Views</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for page in top_pages %}
+                            <tr>
+                                <td><span class="page-path">{{ page.path }}</span></td>
+                                <td><span class="visit-count">{{ page.count }}</span></td>
+                            </tr>
+                            {% endfor %}
+                            {% if not top_pages %}
+                            <tr><td colspan="2" style="text-align:center; color: var(--text-muted);">No data yet</td></tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Top Creators -->
+            <div class="col-lg-6">
+                <div class="admin-section">
+                    <h3 class="section-heading"><i class="fas fa-trophy"></i> Top Creators</h3>
+                    <table class="admin-table">
+                        <thead>
+                            <tr><th>User</th><th>Email</th><th>Reels</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for user in user_reel_counts %}
+                            <tr>
+                                <td><strong>{{ user.name }}</strong></td>
+                                <td style="font-size:0.8rem;">{{ user.email }}</td>
+                                <td><span class="visit-count">{{ user.reel_count }}</span></td>
+                            </tr>
+                            {% endfor %}
+                            {% if not user_reel_counts %}
+                            <tr><td colspan="3" style="text-align:center; color: var(--text-muted);">No data yet</td></tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Users -->
+        <div class="admin-section">
+            <h3 class="section-heading"><i class="fas fa-user-plus"></i> Recent Users</h3>
+            <table class="admin-table">
+                <thead>
+                    <tr><th>#</th><th>Name</th><th>Email</th></tr>
+                </thead>
+                <tbody>
+                    {% for user in recent_users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td><strong>{{ user.name }}</strong></td>
+                        <td>{{ user.email }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
