@@ -9,6 +9,7 @@ DATA_DIR = os.environ.get('DATA_DIR', '.')
 UPLOAD_FOLDER = os.path.join(DATA_DIR, 'user_upload')
 REELS_DIR = os.path.join(DATA_DIR, 'reels')
 DONE_FILE = os.path.join(DATA_DIR, 'done.txt')
+FFMPEG_BIN = os.environ.get('FFMPEG_PATH', 'ffmpeg')
 
 def generate_audio_for_folder(folder):
     print("TTA - ", folder)
@@ -36,7 +37,7 @@ def create_reel(folder):
     if os.path.exists(audio_path):
         # Audio exists: Map video from input 0 and audio from input 1
         args = [
-            "ffmpeg", "-y", 
+            FFMPEG_BIN, "-y", 
             "-f", "concat", "-safe", "0", "-i", input_txt,
             "-i", audio_path,
             "-map", "0:v:0", "-map", "1:a:0",
@@ -48,7 +49,7 @@ def create_reel(folder):
     else:
         # No audio: Just process video
         args = [
-            "ffmpeg", "-y", 
+            FFMPEG_BIN, "-y", 
             "-f", "concat", "-safe", "0", "-i", input_txt,
             "-vf", vf,
             "-c:v", "libx264", "-r", "30", "-pix_fmt", "yuv420p", "-movflags", "+faststart",

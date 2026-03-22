@@ -2,7 +2,7 @@ services:
   - type: web
     name: reelcraft-web
     env: python
-    buildCommand: "pip install -r requirements.txt"
+    buildCommand: "./render-build.sh"
     startCommand: "gunicorn main:app --bind 0.0.0.0:$PORT --workers 1 --threads 4"
     envVars:
       - key: ELEVENLABS_API_KEY
@@ -11,6 +11,8 @@ services:
         generateValue: true
       - key: DATA_DIR
         value: "/opt/render/project/src/data"
+      - key: FFMPEG_PATH
+        value: "/opt/render/project/src/ffmpeg_bin/ffmpeg"
     disk:
       name: reelcraft-data
       mountPath: /opt/render/project/src/data
