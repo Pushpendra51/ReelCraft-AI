@@ -1,2 +1,1 @@
-web: gunicorn main:app
-worker: python generate_process.py
+web: gunicorn main:app --workers 1 --threads 4

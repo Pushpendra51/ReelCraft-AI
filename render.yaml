@@ -3,28 +3,15 @@ services:
     name: reelcraft-web
     env: python
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "gunicorn main:app --bind 0.0.0.0:$PORT"
+    startCommand: "gunicorn main:app --bind 0.0.0.0:$PORT --workers 1 --threads 4"
     envVars:
       - key: ELEVENLABS_API_KEY
         sync: false
       - key: SECRET_KEY
         generateValue: true
+      - key: DATA_DIR
+        value: "/opt/render/project/src/data"
     disk:
       name: reelcraft-data
-      mountPath: /opt/render/project/src/data
-      sizeGB: 1
-
-  - type: worker
-    name: reelcraft-worker
-    env: python
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "python generate_process.py"
-    envVars:
-      - key: ELEVENLABS_API_KEY
-        sync: false
-      - key: SECRET_KEY
-        sync: false
-    disk:
-      name: reelcraft-worker-data
       mountPath: /opt/render/project/src/data
       sizeGB: 1

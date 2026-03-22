@@ -4,21 +4,27 @@ from elevenlabs import VoiceSettings
 from elevenlabs.client import ElevenLabs
 from dotenv import load_dotenv
 load_dotenv(dotenv_path="api.env")
-# from config import ELEVENLABS_API_KEY
 
 ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
+DATA_DIR = os.environ.get('DATA_DIR', '.')
+UPLOAD_FOLDER = os.path.join(DATA_DIR, 'user_upload')
 
-client = ElevenLabs(
-    api_key=ELEVENLABS_API_KEY,
-)
-
+client = None
+if ELEVENLABS_API_KEY:
+    try:
+        client = ElevenLabs(api_key=ELEVENLABS_API_KEY)
+    except Exception as e:
+        print(f"Error initializing ElevenLabs: {e}")
 
 from gtts import gTTS
 
 def text_to_speech_file(text: str, folder : str) -> str:
-    save_file_path = os.path.join("user_upload", folder, "audio.mp3")
+    save_file_path = os.path.join(UPLOAD_FOLDER, folder, "audio.mp3")
     
     try:
+        if not client:
+            raise ValueError("ElevenLabs client not initialized (check API key).")
+            
         print(f"Attempting ElevenLabs for {folder}...", flush=True)
         # Calling the text_to_speech conversion API with detailed parameters
         response = client.text_to_speech.convert(
@@ -62,5 +68,3 @@ def text_to_speech_file(text: str, folder : str) -> str:
             if os.path.exists(save_file_path):
                 os.remove(save_file_path)
             raise e2
-
-# text_to_speech_file("Hi, I'm Pushpendra, and I'm currently working on a Python-based project.","bba58def-4e69-11f0-8324-f4c88aafc124")

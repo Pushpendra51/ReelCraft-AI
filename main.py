@@ -1,9 +1,10 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory
 import uuid
 import re
 from werkzeug.utils import secure_filename
 import os
 import subprocess
+import threading
 from datetime import datetime, timedelta
 from functools import wraps
 from flask_sqlalchemy import SQLAlchemy
@@ -12,13 +13,19 @@ from flask_bcrypt import Bcrypt
 
 ADMIN_EMAIL = 'this.pushpendra@gmail.com'
 
-UPLOAD_FOLDER = 'user_upload'
+# Configuration: Use Render's persistent disk if available
+DATA_DIR = os.environ.get('DATA_DIR', '.')
+UPLOAD_FOLDER = os.path.join(DATA_DIR, 'user_upload')
+REELS_DIR = os.path.join(DATA_DIR, 'reels')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'mp4', 'mov', 'avi', 'webp'}
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.secret_key = os.environ.get('SECRET_KEY', 'reelcraft-dev-secret-2025')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
+
+# Persistent Database Path
+db_path = os.path.abspath(os.path.join(DATA_DIR, 'app.db'))
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -56,16 +63,25 @@ with app.app_context():
 
 # Ensure required directories exist at startup
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-os.makedirs(os.path.join('static', 'reels'), exist_ok=True)
-if not os.path.exists("done.txt"):
-    open("done.txt", "w").close()
+os.makedirs(REELS_DIR, exist_ok=True)
+
+
+# ── Background Worker Integration ──
+def start_worker():
+    from generate_process import run_worker
+    worker_thread = threading.Thread(target=run_worker, args=(app, db, Reel), daemon=True)
+    worker_thread.start()
+    print("Background worker thread started.", flush=True)
+
+# Start worker only if not in reload mode (optional, but cleaner)
+if not app.debug or os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
+    start_worker()
 
 
 # ── Visit tracker middleware ──
 @app.before_request
 def track_visit():
-    # Skip static files and admin page itself
-    if request.path.startswith('/static') or request.path == '/favicon.ico':
+    if request.path.startswith('/static') or request.path.startswith('/reels') or request.path == '/favicon.ico':
         return
     try:
         visit = PageVisit(
@@ -95,9 +111,7 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-# UUID v1/v4 pattern for validating reel/session IDs (prevent path traversal)
 UUID_PATTERN = re.compile(r'^[0-9a-zA-Z_-]+$')
-
 
 def is_safe_uuid(value):
     return value and UUID_PATTERN.match(value.strip()) is not None
@@ -179,7 +193,6 @@ def create():
 
         input_files = []
         for key, file in request.files.items():
-            # Skip the music file in the media loop
             if key == "music_file":
                 continue
             if file and file.filename and allowed_file(file.filename):
@@ -191,22 +204,16 @@ def create():
             flash("Please upload at least one image or video file.", "error")
             return redirect(url_for("create"))
 
-        # Handle Audio
         if audio_mode == "music":
             music_file = request.files.get("music_file")
             if music_file and music_file.filename:
-                # Save as audio.mp3 so the generator finds it
                 music_file.save(os.path.join(folder_path, "audio.mp3"))
             else:
                 flash("Music mode selected but no MP3 file uploaded. Defaulting to silent reel.", "warning")
         else:
-            # Save description for TTS
             with open(os.path.join(folder_path, "desc.txt"), "w", encoding="utf-8") as f:
                 f.write(desc)
 
-        # Write ffmpeg input file list with ABSOLUTE paths so FFmpeg can find media.
-        # Duplicate last file so concat demuxer respects its duration (FFmpeg quirk).
-        # Calculate per-image duration (15s for single photo, 3s for multiple)
         abs_folder = os.path.abspath(folder_path)
         duration = 15 if len(input_files) == 1 else 3
         
@@ -216,7 +223,6 @@ def create():
             lines.append(f"file '{abs_path}'\n")
             lines.append(f"duration {duration}\n")
             
-        # Duplicate the last file (required for concat filter to show the last image)
         if input_files:
             last_path = os.path.join(abs_folder, input_files[-1]).replace("\\", "/")
             lines.append(f"file '{last_path}'\n")
@@ -224,7 +230,6 @@ def create():
         with open(os.path.join(folder_path, "input.txt"), "w", encoding="utf-8") as f:
             f.writelines(lines)
 
-        # Register reel to user in db
         new_reel = Reel(job_id=rec_id.strip(), user_id=current_user.id)
         db.session.add(new_reel)
         db.session.commit()
@@ -250,15 +255,20 @@ def status(reel_id):
                            reel_file=reel_file)
 
 
+# Route to serve reels from the persistent storage
+@app.route("/reels/<filename>")
+def serve_reel(filename):
+    return send_from_directory(REELS_DIR, filename)
+
+
 @app.route("/gallery")
 @login_required
 def gallery():
     user_reels = Reel.query.filter_by(user_id=current_user.id).all()
-    reels_dir = os.path.join("static", "reels")
     reels = []
     
     for r in user_reels:
-        if os.path.exists(os.path.join(reels_dir, f"{r.job_id}.mp4")):
+        if os.path.exists(os.path.join(REELS_DIR, f"{r.job_id}.mp4")):
             reels.append(f"{r.job_id}.mp4")
             
     return render_template("gallery.html", reels=reels)
@@ -276,11 +286,10 @@ def delete_reel(reel_id):
         flash("Reel not found or permission denied.", "error")
         return redirect(url_for("gallery"))
 
-    # Remove from DB
     db.session.delete(reel_record)
     db.session.commit()
 
-    reel_path = os.path.join("static", "reels", f"{reel_id}.mp4")
+    reel_path = os.path.join(REELS_DIR, f"{reel_id}.mp4")
     if os.path.isfile(reel_path):
         try:
             os.remove(reel_path)
@@ -291,7 +300,6 @@ def delete_reel(reel_id):
         flash("Reel not found.", "error")
     return redirect(url_for("gallery"))
 
-# ── Admin Analytics Dashboard ──
 @app.route('/admin')
 @admin_required
 def admin_dashboard():
@@ -300,41 +308,33 @@ def admin_dashboard():
     week_ago = now - timedelta(days=7)
     month_ago = now - timedelta(days=30)
 
-    # User stats
     total_users = User.query.count()
-    new_users_today = User.query.count()  # No created_at on User, so just total
+    new_users_today = User.query.count()
     
-    # Reel stats
     total_reels = Reel.query.count()
     completed_reels = Reel.query.filter_by(status='completed').count()
     pending_reels = Reel.query.filter(Reel.status != 'completed').count()
 
-    # Visit stats
     total_visits = PageVisit.query.count()
     visits_today = PageVisit.query.filter(PageVisit.timestamp >= today_start).count()
     visits_week = PageVisit.query.filter(PageVisit.timestamp >= week_ago).count()
     visits_month = PageVisit.query.filter(PageVisit.timestamp >= month_ago).count()
     
-    # Unique visitors (by IP)
     unique_visitors_today = db.session.query(db.func.count(db.distinct(PageVisit.ip))).filter(PageVisit.timestamp >= today_start).scalar()
     unique_visitors_total = db.session.query(db.func.count(db.distinct(PageVisit.ip))).scalar()
 
-    # Top pages
     top_pages = db.session.query(
         PageVisit.path,
         db.func.count(PageVisit.id).label('count')
     ).group_by(PageVisit.path).order_by(db.desc('count')).limit(10).all()
 
-    # Recent users
     recent_users = User.query.order_by(User.id.desc()).limit(10).all()
     
-    # Per-user reel counts
     user_reel_counts = db.session.query(
         User.name, User.email,
         db.func.count(Reel.id).label('reel_count')
     ).join(Reel, User.id == Reel.user_id).group_by(User.id).order_by(db.desc('reel_count')).limit(10).all()
 
-    # Daily visits for chart (last 7 days)
     daily_visits = []
     for i in range(6, -1, -1):
         day = (now - timedelta(days=i)).replace(hour=0, minute=0, second=0, microsecond=0)

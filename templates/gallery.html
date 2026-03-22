@@ -22,7 +22,7 @@
             {% for reel in reels %}
             <div class="reel-card">
                 <div class="reel-video-wrap">
-                    <video src="/static/reels/{{ reel }}?v={{ range(10000, 99999) | random }}" controls preload="metadata">
+                    <video src="/reels/{{ reel }}?v={{ range(10000, 99999) | random }}" controls preload="metadata">
                         Your browser does not support the video tag.
                     </video>
                 </div>

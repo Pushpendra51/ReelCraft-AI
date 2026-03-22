@@ -3,11 +3,17 @@ from text_to_audio import text_to_speech_file
 import time
 import subprocess
 import shutil
-from main import app, db, Reel
+
+# Configuration: Use Render's persistent disk if available
+DATA_DIR = os.environ.get('DATA_DIR', '.')
+UPLOAD_FOLDER = os.path.join(DATA_DIR, 'user_upload')
+REELS_DIR = os.path.join(DATA_DIR, 'reels')
+DONE_FILE = os.path.join(DATA_DIR, 'done.txt')
 
 def generate_audio_for_folder(folder):
     print("TTA - ", folder)
-    with open(os.path.join("user_upload", folder, "desc.txt"), encoding="utf-8") as f:
+    desc_path = os.path.join(UPLOAD_FOLDER, folder, "desc.txt")
+    with open(desc_path, encoding="utf-8") as f:
         raw_text = f.read()
     
     import re
@@ -15,13 +21,14 @@ def generate_audio_for_folder(folder):
     text = re.sub(r'\s+', ' ', raw_text).strip()
     
     print(text, folder)
-    text_to_speech_file(text, folder)  # Fixed: was commented out before
+    text_to_speech_file(text, folder)
 
 
 def create_reel(folder):
-    input_txt = os.path.join("user_upload", folder, "input.txt")
-    audio_path = os.path.join("user_upload", folder, "audio.mp3")
-    out_path = os.path.join("static", "reels", f"{folder}.mp4")
+    folder_path = os.path.join(UPLOAD_FOLDER, folder)
+    input_txt = os.path.join(folder_path, "input.txt")
+    audio_path = os.path.join(folder_path, "audio.mp3")
+    out_path = os.path.join(REELS_DIR, f"{folder}.mp4")
     
     # Cinematic vertical scaling + padding
     vf = "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2:black,format=yuv420p,fps=30"
@@ -52,50 +59,47 @@ def create_reel(folder):
     print("CR - ", folder)
 
 
-if __name__ == "__main__":
+def run_worker(app=None, db=None, Reel=None):
+    """Main worker loop that can be run in a background thread."""
     # Ensure required directories exist
-    os.makedirs("user_upload", exist_ok=True)
-    os.makedirs(os.path.join("static", "reels"), exist_ok=True)
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+    os.makedirs(REELS_DIR, exist_ok=True)
 
-    if not os.path.exists("done.txt"):
-        open("done.txt", "w").close()
+    if not os.path.exists(DONE_FILE):
+        open(DONE_FILE, "w").close()
 
     while True:
-        print("Processing queue...", flush=True)
-        if not os.path.exists("done.txt"):
-            open("done.txt", "w").close()
-            
-        with open("done.txt", "r", encoding="utf-8") as f:
-            done_folders = [line.strip() for line in f.readlines() if line.strip()]
+        try:
+            if not os.path.exists(DONE_FILE):
+                open(DONE_FILE, "w").close()
+                
+            with open(DONE_FILE, "r", encoding="utf-8") as f:
+                done_folders = [line.strip() for line in f.readlines() if line.strip()]
 
-        # Unique set for faster lookup
-        done_set = set(done_folders)
-        
-        if not os.path.exists("user_upload"):
-            os.makedirs("user_upload", exist_ok=True)
+            done_set = set(done_folders)
             
-        folders = os.listdir("user_upload")
+            if not os.path.exists(UPLOAD_FOLDER):
+                os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+                
+            folders = os.listdir(UPLOAD_FOLDER)
 
-        for folder in folders:
-            if folder in done_set:
-                continue
-            
-            # Check if it's a valid folder with our input.txt
-            folder_path = os.path.join("user_upload", folder)
-            if not os.path.isdir(folder_path):
-                continue
+            for folder in folders:
+                if folder in done_set:
+                    continue
                 
-            input_txt = os.path.join(folder_path, "input.txt")
-            if not os.path.exists(input_txt):
-                continue
-                
-            print(f"[START] Starting reel generation: {folder}", flush=True)
-            try:
-                # Try to generate AI audio if desc.txt exists and audio.mp3 doesn't
-                audio_path = os.path.join(folder_path, "audio.mp3")
-                desc_path = os.path.join(folder_path, "desc.txt")
-                
+                folder_path = os.path.join(UPLOAD_FOLDER, folder)
+                if not os.path.isdir(folder_path):
+                    continue
+                    
+                input_txt = os.path.join(folder_path, "input.txt")
+                if not os.path.exists(input_txt):
+                    continue
+                    
+                print(f"[START] Starting reel generation: {folder}", flush=True)
                 try:
+                    audio_path = os.path.join(folder_path, "audio.mp3")
+                    desc_path = os.path.join(folder_path, "desc.txt")
+                    
                     if os.path.exists(desc_path) and not os.path.exists(audio_path):
                         print(f"[TTS] Generating TTS for {folder}", flush=True)
                         generate_audio_for_folder(folder)
@@ -104,36 +108,38 @@ if __name__ == "__main__":
                     else:
                         print(f"[SILENT] No audio provided for {folder}. Creating silent reel.", flush=True)
                         
-                    # Verify audio was actually created/exists and is not empty
                     if os.path.exists(audio_path) and os.path.getsize(audio_path) == 0:
                         print(f"[WARN] Audio file was empty for {folder}. Deleting.", flush=True)
                         os.remove(audio_path)
-                except Exception as tts_error:
-                    print(f"[WARN] Audio generation failed for {folder}: {tts_error}. Proceeding as-is.", flush=True)
 
-                # Final safety check: if audio.mp3 exists but is 0-bytes, it will crash ffmpeg. Delete it.
-                if os.path.exists(audio_path) and os.path.getsize(audio_path) == 0:
-                    print(f"[CRITICAL] 0-byte audio detected before ffmpeg. Deleting it.", flush=True)
-                    os.remove(audio_path)
+                    if os.path.exists(audio_path) and os.path.getsize(audio_path) == 0:
+                        print(f"[CRITICAL] 0-byte audio detected before ffmpeg. Deleting it.", flush=True)
+                        os.remove(audio_path)
 
-                create_reel(folder)     # Stitch images + audio into mp4
-                
-                with open("done.txt", "a") as f:
-                    f.write(folder + "\n")
+                    create_reel(folder)
                     
-                # Update DB status
-                with app.app_context():
-                    reel_record = Reel.query.filter_by(job_id=folder).first()
-                    if reel_record:
-                        reel_record.status = 'completed'
-                        db.session.commit()
+                    with open(DONE_FILE, "a") as f:
+                        f.write(folder + "\n")
                         
-                print(f"[SUCCESS] Reel created successfully: {folder}", flush=True)
-                
-                # Cleanup the raw files to save disk space
-                shutil.rmtree(folder_path, ignore_errors=True)
-                print(f"[CLEANUP] Cleaned up folder: {folder_path}", flush=True)
-            except Exception as e:
-                print(f"[ERROR] Critical Error: create_reel failed for {folder}: {e}", flush=True)
+                    if app and db and Reel:
+                        with app.app_context():
+                            reel_record = Reel.query.filter_by(job_id=folder).first()
+                            if reel_record:
+                                reel_record.status = 'completed'
+                                db.session.commit()
+                            
+                    print(f"[SUCCESS] Reel created successfully: {folder}", flush=True)
+                    shutil.rmtree(folder_path, ignore_errors=True)
+                    print(f"[CLEANUP] Cleaned up folder: {folder_path}", flush=True)
+                except Exception as e:
+                    print(f"[ERROR] Critical Error: create_reel failed for {folder}: {e}", flush=True)
 
-        time.sleep(3)
+            time.sleep(3)
+        except Exception as outer_e:
+            print(f"[ERROR] Outer worker loop error: {outer_e}", flush=True)
+            time.sleep(5)
+
+
+if __name__ == "__main__":
+    from main import app, db, Reel
+    run_worker(app, db, Reel)
