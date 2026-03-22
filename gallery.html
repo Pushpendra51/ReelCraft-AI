@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Gallery - ReelCraft AI{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/gallery.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container gallery-container">
+    <h1 class="gallery-title">Reels Gallery</h1>
+    <div class="gallery-grid">
+        {% for reel in reels %}
+        <video src="/static/reels/{{reel}}"controls></video>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

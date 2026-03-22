@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🎬 ReelCraft AI
 
 > Turn your images into AI-powered Instagram Reels with voice narration — built with Flask, ElevenLabs & FFmpeg.
@@ -127,3 +128,6 @@ DS.web/
 ---
 
 Made with ❤️ by Pushpendra
+=======
+# ReelCraft-AI
+>>>>>>> d2843ecda691aedf049b50668aadd628c4843c0b
